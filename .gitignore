@@ -1,0 +1,22 @@
+# Credentials
+data/credentials/
+*.json
+!pyproject.toml
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
