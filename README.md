@@ -214,7 +214,7 @@ Tabela externa apontando para `gs://bucket/processed/*.parquet` via conexao BigL
 
 ### Camada curada: `v_transactions` (view)
 
-Mesmas colunas + campo calculado `total_value` (qtty * price).
+Mesmas colunas + campo calculado `total_value` (qtty * price). Inclui deduplicacao por `transaction_id` via `ROW_NUMBER()`, garantindo que re-execucoes do pipeline nao dupliquem registros.
 
 ### Camada de negocio: views analiticas
 

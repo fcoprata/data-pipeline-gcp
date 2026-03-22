@@ -44,7 +44,7 @@ OPTIONS (
 )
 "
 
-echo "==> Criando view v_transactions..."
+echo "==> Criando view v_transactions (com deduplicacao)..."
 bq query --use_legacy_sql=false --project_id="${PROJECT_ID}" "
 CREATE OR REPLACE VIEW \`${PROJECT_ID}.${DATASET_ID}.v_transactions\` AS
 SELECT
@@ -59,7 +59,13 @@ SELECT
   customer_name,
   customer_email,
   (qtty * price) AS total_value
-FROM \`${PROJECT_ID}.${DATASET_ID}.transactions_raw\`
+FROM (
+  SELECT
+    *,
+    ROW_NUMBER() OVER (PARTITION BY transaction_id ORDER BY transaction_date) AS _rn
+  FROM \`${PROJECT_ID}.${DATASET_ID}.transactions_raw\`
+)
+WHERE _rn = 1
 "
 
 echo "==> Criando views de negocio..."
