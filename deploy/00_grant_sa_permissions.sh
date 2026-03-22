@@ -15,6 +15,7 @@ ROLES=(
   "roles/bigquery.connectionAdmin"
   "roles/iam.serviceAccountUser"
   "roles/cloudbuild.builds.editor"
+  "roles/run.invoker"
 )
 
 echo "==> Concedendo permissoes para ${SA_EMAIL}..."

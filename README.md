@@ -119,6 +119,7 @@ Roles concedidos:
 | `roles/bigquery.connectionAdmin` | Criar conexao BigLake |
 | `roles/iam.serviceAccountUser` | Necessario para deploy de functions |
 | `roles/cloudbuild.builds.editor` | Build da function no deploy |
+| `roles/run.invoker` | Invocar a Cloud Function (Gen2) via HTTP autenticado |
 
 ## Como executar
 

@@ -13,8 +13,12 @@ FUNCTION_URL=$(gcloud functions describe "${FUNCTION_NAME}" \
   --project="${PROJECT_ID}" \
   --format="value(serviceConfig.uri)")
 
+echo "==> Obtendo token de autenticacao..."
+AUTH_TOKEN=$(gcloud auth print-identity-token)
+
 echo "==> Executando pipeline: ${FUNCTION_URL}"
-RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${FUNCTION_URL}")
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${FUNCTION_URL}" \
+  --header "Authorization: Bearer ${AUTH_TOKEN}")
 HTTP_CODE=$(echo "${RESPONSE}" | tail -1)
 BODY=$(echo "${RESPONSE}" | sed '$d')
 

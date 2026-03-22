@@ -16,7 +16,7 @@ gcloud functions deploy "${FUNCTION_NAME}" \
   --source="${FUNCTION_DIR}" \
   --entry-point=etl_handler \
   --trigger-http \
-  --allow-unauthenticated \
+  --no-allow-unauthenticated \
   --memory=512MB \
   --timeout=300s \
   --project="${PROJECT_ID}"
