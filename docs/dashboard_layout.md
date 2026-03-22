@@ -2,6 +2,8 @@
 
 Guia de construcao do dashboard no Looker Studio conectado ao BigQuery.
 
+**Link do dashboard:** [Looker Studio](https://lookerstudio.google.com/reporting/886b3f44-0f78-4aeb-9d2e-4a2e878f00f9)
+
 ## Conexao com BigQuery
 
 1. Acesse [lookerstudio.google.com](https://lookerstudio.google.com)
@@ -18,34 +20,37 @@ Guia de construcao do dashboard no Looker Studio conectado ao BigQuery.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  HEADER: Pipeline de Transacoes Financeiras          [filtro: mes] │
-├────────────┬────────────┬────────────┬──────────────────────────────┤
-│  SCORECARD │  SCORECARD │  SCORECARD │         SCORECARD            │
-│  Total     │  Total     │  Media     │    Top cliente (volume)      │
-│  transacoes│  aprovadas │  rejeicoes │    nome + valor              │
-│            │            │  /mes      │                              │
-├────────────┴────────────┴────────────┴──────────────────────────────┤
-│                                                                     │
-│  GRAFICO DE BARRAS EMPILHADAS                                       │
-│  Transacoes por mes (approved / rejected / pending)                 │
-│  eixo X: mes | eixo Y: count | cor: status                         │
-│                                                                     │
-├─────────────────────────────────┬───────────────────────────────────┤
-│                                 │                                   │
-│  GRAFICO DE LINHA (2 eixos)     │  TABELA                           │
-│  Evolucao do preco medio        │  Ranking clientes                 │
-│  e estoque acumulado            │  (ultimos 3 meses)                │
-│                                 │                                   │
-│  eixo X: data                   │  customer_name | total | volume   │
-│  eixo Y1: preco_medio (linha)   │  ordenado por volume DESC         │
-│  eixo Y2: estoque (area)        │                                   │
-│                                 │                                   │
-├─────────────────────────────────┴───────────────────────────────────┤
-│  DONUT                    │  GRAFICO DE BARRAS HORIZONTAL           │
-│  Distribuicao por status  │  Top 5 transacoes por valor             │
-│  (approved/rejected/      │  (transaction_amount)                   │
-│   pending) %              │                                         │
-└───────────────────────────┴─────────────────────────────────────────┘
+│                                                    [filtro: data]   │
+├────────────┬────────────┬─────────────────┬─────────────────────────┤
+│  SCORECARD │  SCORECARD │    SCORECARD    │       SCORECARD          │
+│  Total de  │  Total     │  Media Mensal   │  Top cliente (volume)    │
+│  transacoes│  Aprovadas │  de Rejeicoes   │  nome + valor            │
+│  (500)     │  (205)     │  (14,2)         │  Customer_1  5.744,5     │
+├────────────┴────────────┴────────┬────────┴─────────────────────────┤
+│                                  │                                   │
+│  GRAFICO DE BARRAS HORIZONTAIS   │  COMBO CHART (linha + area)       │
+│  EMPILHADAS                      │  Evolucao do Preco Medio          │
+│  Transacoes por mes              │  e Estoque                        │
+│  (approved/rejected/pending)     │                                   │
+│  eixo Y: mes | eixo X: count    │  eixo X: mes                      │
+│  cor: status                     │  eixo Y: preco_medio / estoque    │
+│                                  │                                   │
+├──────────────────────────────────┼───────────────────────────────────┤
+│                                  │                                   │
+│  GRAFICO DE BARRAS HORIZONTAL    │  DONUT                            │
+│  Top 5 Transacoes por Valor      │  Distribuicao por Status          │
+│  (transaction_amount)            │  approved 41%                     │
+│                                  │  rejected 34%                     │
+│                                  │  pending 25%                      │
+│                                  │                                   │
+├──────────────────────────────────┼───────────────────────────────────┤
+│                                  │                                   │
+│  TABELA                          │                                   │
+│  Ranking de Clientes             │                                   │
+│  (ultimos 3 meses)              │                                   │
+│  customer_name | total | volume  │                                   │
+│                                  │                                   │
+└──────────────────────────────────┴───────────────────────────────────┘
 ```
 
 ## Componentes
@@ -57,20 +62,21 @@ Guia de construcao do dashboard no Looker Studio conectado ao BigQuery.
 - **Fonte:** `v_transactions`
 - **Metrica:** `COUNT(transaction_id)` — Record Count
 - **Formato:** Numero inteiro
+- **Estilo:** Fundo branco, borda cinza claro
 
-#### Total aprovadas
+#### Total Aprovadas
 - **Tipo:** Scorecard
 - **Fonte:** `v_transactions`
 - **Metrica:** `COUNT(transaction_id)` com filtro `transaction_status = approved`
 - **Formato:** Numero inteiro
-- **Cor:** Verde (#34A853)
+- **Estilo:** Fundo Verde (#34A853), texto branco
 
-#### Media de rejeicoes por mes
+#### Media Mensal de Rejeicoes
 - **Tipo:** Scorecard
 - **Fonte:** `v_media_rejeicoes_mes`
 - **Metrica:** `media_rejeicoes_por_mes`
-- **Formato:** Numero decimal (2 casas)
-- **Cor:** Vermelho (#EA4335)
+- **Formato:** Numero decimal (1 casa)
+- **Estilo:** Fundo Verde (#34A853), texto branco
 
 #### Top cliente (volume)
 - **Tipo:** Scorecard
@@ -79,38 +85,63 @@ Guia de construcao do dashboard no Looker Studio conectado ao BigQuery.
 - **Metrica secundaria:** `customer_name`
 - **Ordenacao:** `volume_total DESC`
 - **Limite:** 1 registro
-- **Formato:** Moeda (R$)
+- **Formato:** Numero com separador decimal (virgula)
+- **Estilo:** Fundo branco, texto escuro
 
-### Linha 2 — Transacoes por mes
+### Linha 2 — Transacoes por mes + Preco medio
 
-#### Barras empilhadas
-- **Tipo:** Stacked Bar Chart
+#### Barras horizontais empilhadas (coluna esquerda)
+- **Tipo:** Stacked Horizontal Bar Chart
 - **Fonte:** `v_transactions`
-- **Dimensao:** `transaction_date` formatado como `YYYYMM` (mes)
-- **Metrica:** `COUNT(transaction_id)` — Record Count
+- **Dimensao (eixo Y):** `transaction_date` formatado como nome do mes (janeiro-dezembro)
+- **Metrica (eixo X):** `COUNT(transaction_id)` — Record Count
 - **Breakdown (dimensao de cor):** `transaction_status`
 - **Cores:**
   - approved: Verde (#34A853)
   - rejected: Vermelho (#EA4335)
   - pending: Amarelo (#FBBC04)
-- **Ordenacao:** mes crescente
+- **Ordenacao:** mes crescente (janeiro no topo)
 
-### Linha 3 — Preco medio + Ranking
-
-#### Combo chart (linha + area)
+#### Combo chart — linha + area (coluna direita)
 - **Tipo:** Combo Chart
 - **Fonte:** `v_preco_medio_estoque`
-- **Dimensao (eixo X):** `transaction_date`
-- **Serie 1 (linha, eixo Y esquerdo):** `preco_medio`
+- **Dimensao (eixo X):** `transaction_date` formatado como nome do mes
+- **Serie 1 (linha tracejada, eixo Y esquerdo):** `preco_medio`
   - Cor: Azul (#4285F4)
-  - Tipo: Linha com pontos
+  - Tipo: Linha tracejada com pontos
 - **Serie 2 (area, eixo Y direito):** `estoque_acumulado`
   - Cor: Cinza (#9AA0A6) com opacidade 30%
   - Tipo: Area preenchida
 - **Ordenacao:** `transaction_date` crescente
 - **Titulo:** Evolucao do Preco Medio e Estoque
 
-#### Tabela de ranking
+### Linha 3 — Top transacoes + Distribuicao
+
+#### Barras horizontais (coluna esquerda)
+- **Tipo:** Horizontal Bar Chart
+- **Fonte:** `v_transactions`
+- **Dimensao:** `transaction_id`
+- **Metrica:** `transaction_amount`
+- **Ordenacao:** `transaction_amount DESC`
+- **Limite:** 5 registros
+- **Cor:** Azul (#4285F4)
+- **Titulo:** Top 5 Transacoes por Valor
+
+#### Donut chart (coluna direita)
+- **Tipo:** Donut / Pie Chart
+- **Fonte:** `v_transactions`
+- **Dimensao:** `transaction_status`
+- **Metrica:** `COUNT(transaction_id)` — Record Count
+- **Cores:**
+  - approved: Verde (#34A853) — 41%
+  - rejected: Vermelho (#EA4335) — 34%
+  - pending: Amarelo (#FBBC04) — 25%
+- **Mostrar:** percentual
+- **Titulo:** Distribuicao por Status
+
+### Linha 4 — Ranking de clientes
+
+#### Tabela de ranking (coluna esquerda)
 - **Tipo:** Table
 - **Fonte:** `v_top_cliente_3m`
 - **Colunas:**
@@ -120,30 +151,6 @@ Guia de construcao do dashboard no Looker Studio conectado ao BigQuery.
 - **Ordenacao:** `volume_total DESC`
 - **Barra condicional:** aplicar em `volume_total` (gradiente verde)
 - **Titulo:** Ranking de Clientes (ultimos 3 meses)
-
-### Linha 4 — Distribuicao + Top transacoes
-
-#### Donut chart
-- **Tipo:** Donut / Pie Chart
-- **Fonte:** `v_transactions`
-- **Dimensao:** `transaction_status`
-- **Metrica:** `COUNT(transaction_id)` — Record Count
-- **Cores:**
-  - approved: Verde (#34A853)
-  - rejected: Vermelho (#EA4335)
-  - pending: Amarelo (#FBBC04)
-- **Mostrar:** percentual e valor absoluto
-- **Titulo:** Distribuicao por Status
-
-#### Barras horizontais
-- **Tipo:** Horizontal Bar Chart
-- **Fonte:** `v_transactions`
-- **Dimensao:** `transaction_id`
-- **Metrica:** `transaction_amount`
-- **Ordenacao:** `transaction_amount DESC`
-- **Limite:** 5 registros
-- **Cor:** Azul (#4285F4)
-- **Titulo:** Top 5 Transacoes por Valor
 
 ## Filtro global
 
