@@ -25,7 +25,7 @@ Guia de construcao do dashboard no Looker Studio conectado ao BigQuery.
 │  SCORECARD │  SCORECARD │    SCORECARD    │       SCORECARD          │
 │  Total de  │  Total     │  Media Mensal   │  Top cliente (volume)    │
 │  transacoes│  Aprovadas │  de Rejeicoes   │  nome + valor            │
-│  (500)     │  (205)     │  (14,2)         │  Customer_1  5.744,5     │
+│  (100)     │  (41)      │  (2,83)         │  Customer_1  1.148,9     │
 ├────────────┴────────────┴────────┬────────┴─────────────────────────┤
 │                                  │                                   │
 │  GRAFICO DE BARRAS HORIZONTAIS   │  COMBO CHART (linha + area)       │

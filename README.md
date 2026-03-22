@@ -188,8 +188,8 @@ Retorna JSON com metricas da execucao:
 {
   "status": "success",
   "raw_records": 100,
-  "clean_records": 98,
-  "removed_records": 2,
+  "clean_records": 100,
+  "removed_records": 0,
   "output_path": "gs://bucket/processed/transactions_20240101_120000.parquet"
 }
 ```
